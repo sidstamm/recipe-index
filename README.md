@@ -19,4 +19,4 @@ For fun, this project has a few features that make it a bit more usable.
 # Installation
 You'll need a web server with PHP and sqlite3 capabilities (which should [be default in modern PHP installs](https://www.php.net/manual/en/sqlite3.installation.php)).
 
-TODO: instructions on how to make the empty database.
+Clone this repo where you want to use it, then copy `recipes_blank.sqlite3` to `recipes.sqlite3`.  Then access index.php in a web browser (via your PHP/apache/nginx/whatever server) and start adding things.
