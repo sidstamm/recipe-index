@@ -1,0 +1,37 @@
+<html>
+  <head>
+    <title>Test Click Edit</title>
+    <script src="clickedit.js" type="text/javascript"></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+  </head>
+  <body>
+    <h1>Test this out:</h1>
+
+    <table border class="clickedit">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Value</th>
+          <th>Tags</th>
+        </tr>
+      <tbody>
+      <tr>
+        <td canedit="text"
+            dataname="name"
+            editUrl="./go.php"
+            editpayload='{"id":0,"column":"Name"}'>One</td>
+        <td canedit="dropdown"
+            selected_id="2"
+            options='{"0":"Zero","1":"One", "2":"Two", "3":"Three"}'
+            dataname="value"
+            editUrl="./go.php"
+            editpayload='{"id":1,"column":"Value"}'>Two</td>
+        <td>Three, four, five</td>
+      </tr>
+      </tbody>
+    </table>
+
+  </body>
+</html>
+

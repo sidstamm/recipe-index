@@ -1,0 +1,31 @@
+/*
+ * For overlay form
+ * (Adding recipes)
+ *
+ * (c) 2020 Sid Stamm
+ */
+
+div.overlay_card {
+  position: absolute;
+  background: #fff;
+  padding: 10px;
+  margin: 10px;
+  border: 1px solid black;
+  border-radius: 5px;
+  z-index:100;
+
+  /* center it horizontally */
+  left:50%;
+  transform:  translate(-50%, 0%);
+}
+
+div.overlay_card[!hidden] {
+  display: block;
+}
+div.overlay_card[hidden] {
+  display: none;
+}
+
+div.background_card {
+  filter: blur(5px);
+}
