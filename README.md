@@ -20,3 +20,11 @@ For fun, this project has a few features that make it a bit more usable.
 You'll need a web server with PHP and sqlite3 capabilities (which should [be default in modern PHP installs](https://www.php.net/manual/en/sqlite3.installation.php)).
 
 Clone this repo where you want to use it, then copy `recipes_blank.sqlite3` to `recipes.sqlite3`.  Then access index.php in a web browser (via your PHP/apache/nginx/whatever server) and start adding things.
+
+# Gallery
+
+Adding a recipe:
+<img style="border:1px solid blue;" src="https://github.com/sidstamm/recipe-index/raw/master/docs/addrecipe.jpg" alt="Adding a Recipe" title="Adding a recipe" />
+
+Editing a recipe:
+<img style="border:1px solid blue;" src="https://github.com/sidstamm/recipe-index/raw/master/docs/editrecipe.jpg" alt="Editing a recipe" title="Editing a Recipe" />
