@@ -35,7 +35,6 @@ table.datalist th.sortkey.down::after {
 /** FILTERED LIST STYLES **/
 
 div.filterTableDiv {
-  align:right;
   width:100%;
 }
 
@@ -44,7 +43,6 @@ div.filterTableDiv {
 }
 
 input.filterbox {
-  align:right;
   margin: 4px;
   padding: 3px;
   border-radius:5px;

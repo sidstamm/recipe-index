@@ -102,6 +102,7 @@ var clickedit = (function () {
       // copy in text attributes from the thing we're editing.
       inp.style.fontFamily = window.getComputedStyle(td).fontFamily;
       inp.style.fontSize = window.getComputedStyle(td).fontSize;
+      inp.style.background = "#fff";
 
       let dims = super.__getDimensions();
 

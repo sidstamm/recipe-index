@@ -19,7 +19,7 @@ div.overlay_card {
   transform:  translate(-50%, 0%);
 }
 
-div.overlay_card[!hidden] {
+div.overlay_card:not([hidden]) {
   display: block;
 }
 div.overlay_card[hidden] {
