@@ -1,0 +1,27 @@
+<html>
+  <head>
+    <title>Test Tag Input Box</title>
+    <script src="taginput.js" type="text/javascript"></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+
+    <script>
+      // some taginput GLOBAL configuration here.
+      taginput.ALL_TAGS = ['one', 'two', 'three', 'alfa', 'bravo', 'charlie'];
+      taginput.SUGGEST = true;
+    </script>
+  </head>
+  <body>
+    <h1>Test this out:</h1>
+
+    <tag-input id="test-editor-one"
+               prepopulate="one,two"
+               style="font-family: sans-serif; padding: 3px;"
+               onblur="console.log('TAGS 1: ' + this.value)"></tag-input>
+
+    <tag-input id="test-editor-two" prepopulate="three,four"
+               onblur="console.log('TAGS 2: ' + this.value)"></tag-input>
+
+  </body>
+</html>
+
