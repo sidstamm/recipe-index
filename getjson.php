@@ -22,7 +22,7 @@
 
 {
   "recipes":
-<?
+<?php
   $recipes = [];
   $result = $db->query($SQL_GET_RECIPES);
   while($res = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -47,7 +47,7 @@
 ?>,
 
   "issues":
-<?
+<?php
   $issues = [];
   $result = $db->query($SQL_GET_ISSUES);
   while($res = $result->fetchArray(SQLITE3_ASSOC)) { $issues[] = $res; }
@@ -55,7 +55,7 @@
 ?>,
 
   "tags":
-<?
+<?php
   $tags = [];
   $result = $db->query($SQL_GET_TAGS);
   while($res = $result->fetchArray(SQLITE3_ASSOC)) { $tags[] = $res; }
