@@ -156,6 +156,11 @@ var taginput = (function() {
       return this.tags.join(",");
     }
 
+    //take focus
+    focus() {
+      this.shadowRoot.querySelector("#taginput-input").focus();
+    }
+
     /*
      * This function executes when the element is attached to the DOM.
      *
@@ -264,7 +269,7 @@ var taginput = (function() {
         case 'Enter':
         case 'Tab':
           // take suggestion
-          if(val.length > 0 && sug.length > 0) {
+          if(val.length > 0 && sug != null && sug.length > 0) {
             val = sug;
           }
           // no break here, want to add the tag too
