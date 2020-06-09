@@ -188,6 +188,17 @@ var taginput = (function() {
       let inp_elt = this.shadowRoot.querySelector("#taginput-input");
       inp_elt.addEventListener('keydown', this.__keydown.bind(this));
       inp_elt.addEventListener('keyup', this.__trySuggest.bind(this));
+
+      // if we lose focus, need to save any tags
+      inp_elt.addEventListener('blur', (evt) => {
+        let val = inp_elt.value;
+        if (val.length > 0) {
+          this.__addTag(val);
+          this.shadowRoot.querySelector("#taginput-input").value = "";
+          this.shadowRoot.querySelector("#taginput-suggest").innerText = "";
+          this.__drawTags();
+        }
+      });
     }
 
     /**
