@@ -86,6 +86,84 @@ var clickedit = (function () {
   }
 
 
+  class TDTagInputEditor extends TDEditor {
+    constructor() {
+      self = super();
+    }
+
+    connectedCallback() {
+      super.connectedCallback();
+
+      let td = this.parentNode;
+      let inp = document.createElement('tag-input');
+      inp.classList.add('clickedit_taginput');
+      inp.style.position = "absolute";
+
+      // copy in text attributes from the thing we're editing.
+      inp.style.fontFamily = window.getComputedStyle(td).fontFamily;
+      inp.style.fontSize = window.getComputedStyle(td).fontSize;
+
+      let dims = super.__getDimensions();
+
+      inp.style.left = dims.x;
+      inp.style.top = dims.y;
+      inp.style.width = dims.width; // TODO: incorporate padding and borders.
+
+      //pass-thru attributes
+      let pta = ['prepopulate'];
+      for (let a of pta) {
+        if (this.hasAttribute(a)) { inp.setAttribute(a, this.getAttribute(a)); }
+      }
+
+      this.shadowRoot.appendChild(inp);
+
+      //TODO: fixme => blur breaks removing tags
+      //inp.addEventListener('blur', this.__finalizeUpdate.bind(this), true);
+      inp.addEventListener('keydown', this.__keyHandler.bind(this), true);
+
+      inp.focus();
+    }
+
+    // allow exiting editor on escape/enter
+    __keyHandler(evt) {
+      //if (evt.defaultPrevented) return;
+      switch(evt.code) {
+        case "Escape":
+          this.__abortUpdate();
+          break;
+        case "Enter":
+          let val = this.shadowRoot.querySelector('tag-input').value;
+          if (this.hasAttribute('editUrl')) {
+            //send edit
+            let url = this.getAttribute('editUrl');
+            this.__postUpdate(val, url)
+            .then((res) => this.__finalizeUpdate(val))
+            .catch((res) => {
+              // abort
+              console.log(`Error posting change to ${url}.`);
+              console.log(res);
+              this.__abortUpdate();
+            });
+          }
+          else {
+            // No post: just update the HTML element.
+            this.__finalizeUpdate(val);
+          }
+          break;
+        default:
+          return;
+      }
+      evt.preventDefault(); // avoid double-handling
+    }
+
+    __finalizeUpdate(value) {
+      //console.log("TAGINPUT: FINALIZE");
+      this.parentNode.setAttribute('prepopulate', value);
+      super.__finalizeUpdate(value);
+    }
+  }
+
+
   class TDDropDownEditor extends TDEditor {
 
     constructor() {
@@ -264,6 +342,7 @@ var clickedit = (function () {
   window.customElements.define('td-editor-input', TDEditor);
   window.customElements.define('td-text-editor-input', TDTextEditor);
   window.customElements.define('td-dropdown-editor-input', TDDropDownEditor);
+  window.customElements.define('td-tag-editor-input', TDTagInputEditor);
 
 
   function _setup() {
@@ -304,6 +383,16 @@ var clickedit = (function () {
                 e.target.appendChild(ed);
                 break;
 
+              case "taginput":
+                ed = document.createElement('td-tag-editor-input');
+                //copy in callback attributes
+                for (let attr of ['editUrl', 'editpayload', 'dataname', 'prepopulate']) {
+                  if (e.target.hasAttribute(attr)) {
+                    ed.setAttribute(attr, e.target.getAttribute(attr));
+                  }
+                }
+                e.target.appendChild(ed);
+                break;
               default:
                 console.log("NOT YET IMPLEMENTED");
                 break;
