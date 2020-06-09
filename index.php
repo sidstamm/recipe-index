@@ -9,7 +9,12 @@
 
 <script type="text/javascript" src="clickedit/clickedit.js"></script>
 <script type="text/javascript" src="datalist/datalist.js"></script>
+<script type="text/javascript" src="taginput/taginput.js"></script>
 <script type="text/javascript">
+
+// config for tag inputs
+taginput.ALL_TAGS=[];// TODO
+taginput.SUGGEST = true;
 
 var recipe_data;
 
@@ -19,6 +24,8 @@ function getRecipeData() {
     .then( (response) => response.json() )
     .then( (data) => {
       window.recipe_data = data;
+      // update suggestions for the tag input boxes.
+      taginput.ALL_TAGS=data['tags'].map( o => o['content']);
       populateRecipeList(data.recipes);
       return data;
     });
@@ -136,7 +143,8 @@ function resetAddForm() {
     qs("recipe_name").value = "";
     // don't reset issue -- maybe sequentially adding many
     //qs("issue").selectedIndex = 0;
-    qs("tags").selectedIndex = -1;
+    //qs("tags").selectedIndex = -1;
+    qs("tags").value = "";
     qs("page").value = "";
     qs("maketime").value = "";
     qs("recipe_name").focus();
@@ -148,6 +156,7 @@ function qs(sel) {
   let e = null;
   if (e = document.body.querySelector("input" + x)) { return e; }
   if (e = document.body.querySelector("select" + x)) { return e; }
+  if (e = document.body.querySelector("tag-input" + x)) { return e; }
   console.log("Couldn't find: selector " + x);
   return null;
 };
@@ -169,8 +178,10 @@ function refreshAddForm(issues, tags) {
   }
 
   //update tags
+  //NOTE: this is done globally when fetching recipe data.
+
+  /*
   let tgs = document.body.querySelector("#addform select[name='tags']");
-  //TODO: if tags are selected before refresh, reselect it
   while(tgs.options.length>0) { tgs.remove(0); }
 
   for(let n of tags) {
@@ -179,22 +190,84 @@ function refreshAddForm(issues, tags) {
     e.textContent = n['content'];
     tgs.appendChild(e);
   }
+  */
+  //TODO: if tags are selected before refresh, reselect them?
 
 }
+
+/**
+ * Promises to submit a new tag to the db.
+ *
+ * @param txt - the text value for the new tag.
+ * @returns a promise.
+ */
+function promiseToAddTag(txt) {
+  return fetch("./add.php?tag", {
+                  method: "POST",
+                  body: JSON.stringify({'tag': txt})
+                });
+}
+
+/**
+ * Adds any tags not already in the DB to the db.
+ * Modifies the global data structure, so we need to preserve any preset data
+ * in the add form.
+ *
+ * @param tags - an Array of tag names; only new tags will be added.
+ */
+function addAnyNewTags(tags) {
+  let newtags = tags.filter( t => !taginput.ALL_TAGS.includes(t) );
+
+  if(newtags.length < 1) { console.log("no new tags"); return; }
+
+  console.log("New Tags: " + newtags);
+
+  // prepare a queue of promises and execute all of them.
+  let pq = [];
+  for (let t of newtags) {
+    //console.log("Adding tag " + t);
+    pq.push(promiseToAddTag(t));
+  }
+
+  // Stash in case we have to update the add form.
+  let sel = document.querySelector("select[name='issue']");
+  let issue_num = sel.selectedOptions[0].value;
+
+  Promise.all(pq)
+    .then( window.getRecipeData )
+    .then( (data) => window.refreshAddForm(data['issues'], data['tags']) )
+    .then( () => {
+      //reselect any selected issue
+      let opt = document.querySelector("#addform select[name='issue'] > option[value='" + issue_num + "']");
+      if(opt) { opt.selected = true; }
+    });
+}
+
+
 
 /**
  * Submits an "add recipe" request to the server.
  */
 function postAdd(frm) {
+
+  // then look up tag IDs
+  let tag_dict = {};
+  for (let o of recipe_data['tags']) {
+    tag_dict[o['content']] = o['id'];
+  }
+
+  let tagnames = qs("tags").value.split(",");
+  let tagids = tagnames.map( t => tag_dict[t] );
+
   let blob = {
     "recipe": qs("recipe_name").value,
       "issue":  qs("issue").value,
-      "tags": Array.from(qs("tags").selectedOptions).map((e)=>e.value),
+      "tags": tagids,
       "page": qs("page").value,
       "maketime": qs("maketime").value
   };
-  console.log("POSTING ADD: ");
-  console.log(blob);
+  //console.log("POSTING ADD: ");
+  //console.log(blob);
 
   // then post it
   fetch("./add.php?recipe", {
@@ -230,39 +303,6 @@ function postAddIssue() {
 }
 
 
-/**
- * Submits a new tag to the db.
- */
-function postAddTag() {
-  let txt = window.prompt('Enter New Tag:');
-  // handle cancel case
-  if(txt == null) { return false; }
-
-  // make sure it's not already in the tag list.
-  for(let o of document.querySelectorAll("select[name='tags'] > option")) {
-    if (o.textContent.toLowerCase() == txt) {
-      alert('tag ' + txt + ' already exists.');
-      return false;
-    }
-  }
-
-  let sel = document.querySelector("select[name='issue']");
-  let issue_num = sel.selectedOptions[0].value;
-
-  fetch("./add.php?tag", {
-    method: "POST",
-    body: JSON.stringify({'tag': txt})
-  }).then( res => {
-    console.log("ADDED TAG: " + txt);
-  }).then( window.getRecipeData )
-    .then( (data) => window.refreshAddForm(data['issues'], data['tags']) )
-    .then( () => {
-      //reselect the issue
-      let opt = document.querySelector("#addform select[name='issue'] > option[value='" + issue_num + "']");
-      if(opt) { opt.selected = true; }
-  });
-}
-
 
 window.addEventListener("load",
   () => getRecipeData()
@@ -288,13 +328,13 @@ window.addEventListener("load", datalist.installDataLists);
   <form id="addform" onsubmit="postAdd(this); return false;">
   <table>
   <tr>
-    <td colspan="2">Recipe:</td>
-    <td>Tags:
-       <input type='button' value='+' onclick="postAddTag();"></td>
+    <td>Recipe:</td>
+    <td colspan=3><input type="text" name="recipe_name" size=70 tabindex=1></input></td>
   </tr>
   <tr>
-    <td colspan=2><input type="text" name="recipe_name" size=70 tabindex=1></input></td>
-    <td rowspan=3> <select name="tags" multiple size=5 tabindex=2></select>
+    <td>Tags:</td>
+    <td colspan=3> <tag-input name="tags" id="add-recipe-tags-input"
+                              onblur="addAnyNewTags(this.value.split(','))">
     </td>
   </tr>
   <tr>
