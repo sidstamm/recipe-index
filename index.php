@@ -103,7 +103,14 @@ function populateRecipeList(recipes) {
          'dataname': 'data',
          'editpayload':'{"column":"maketime", "id":"' + item['id'] + '"}'
         }));
-    row.appendChild(mkElt('td',item['tags']));
+    //row.appendChild(mkElt('td',item['tags']));
+    row.appendChild(mkElt('td',item['tags'],null,
+        {'canedit':'taginput',
+         'editUrl':'tweak.php?recipe_tags',
+         'dataname': 'data',
+         'prepopulate': item['tags'],
+         'editpayload':'{"column":"tags", "id":"' + item['id'] + '"}'
+        }));
 
     // removal button
     let e = document.createElement('td');
